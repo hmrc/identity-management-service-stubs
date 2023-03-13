@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.identitymanagementservicestubs.config
+package uk.gov.hmrc.identitymanagementservicestubs.models
 
-import javax.inject.{Inject, Singleton}
-import play.api.Configuration
+import play.api.libs.json.{Format, Json}
 
-@Singleton
-class AppConfig @Inject()(config: Configuration) {
+case class ClientResponse(clientId: String, secret: String)
 
-  val appName: String = config.get[String]("appName")
+object ClientResponse {
+
+  implicit val formatClientResponse: Format[ClientResponse] = Json.format[ClientResponse]
+
 }
