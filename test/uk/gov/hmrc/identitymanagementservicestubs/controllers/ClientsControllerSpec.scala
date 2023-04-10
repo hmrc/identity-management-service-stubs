@@ -16,6 +16,9 @@
 
 package uk.gov.hmrc.identitymanagementservicestubs.controllers
 
+import akka.actor.ActorSystem
+import akka.stream.Materializer
+import org.mockito.ArgumentMatchers.any
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -23,40 +26,45 @@ import play.api.Application
 import play.api.http.Status
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.Json
-import play.api.mvc.ControllerComponents
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.{ControllerComponents, Request}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
-import uk.gov.hmrc.identitymanagementservicestubs.controllers.ClientsControllerSpec.buildApplication
-import uk.gov.hmrc.identitymanagementservicestubs.models.{Client, ClientResponse}
+import uk.gov.hmrc.identitymanagementservicestubs.controllers.ClientsControllerSpec.{buildApplication, buildFixture}
+import uk.gov.hmrc.identitymanagementservicestubs.models.{Client, ClientResponse, Identity}
+import org.mockito.MockitoSugar.mock
+import org.mockito.{ArgumentMatchers, MockitoSugar}
+import play.api.{Application => PlayApplication}
+import uk.gov.hmrc.identitymanagementservicestubs.services.IdentityService
 
-class ClientsControllerSpec extends AnyFreeSpec with Matchers with OptionValues {
+import scala.concurrent.Future
+
+class ClientsControllerSpec extends AnyFreeSpec with Matchers with MockitoSugar with OptionValues {
 
   "createClient" - {
-    "must return Ok and a ClientResponse for a valid request" in {
-      val client = Client(
-        applicationName = "test-application-name",
-        description = "test-description"
-      )
-
-      val expected = ClientResponse(ClientsController.CLIENT_ID, ClientsController.SECRET)
-
-      val application = buildApplication()
-
-      running(application) {
-        val request = FakeRequest(
-          POST,
-          routes.ClientsController.createClient().url
+    "must return Created and a ClientResponse for a valid request" in {
+      val fixture = buildFixture()
+      running(fixture.application) {
+        val client = Client(
+          applicationName = "test-application-name",
+          description = "test-description"
         )
-        .withHeaders(
-          CONTENT_TYPE -> "application/json"
-        )
-        .withBody(Json.toJson(client))
+        val json = Json.toJson(client)
+        val request: Request[JsValue] = FakeRequest(POST, routes.ClientsController.createClient().url)
+          .withHeaders(
+            CONTENT_TYPE -> "application/json"
+          ).withBody(json)
 
-        val result = route(application, request).value
-        status(result) mustBe Status.OK
+        val expected = ClientResponse("CLIENTID123", "SECRET123")
+
+        when(fixture.idmsService.createIdentity(any[Identity]))
+          .thenReturn(Future.successful(Some(expected)))
+
+        val result = route(fixture.application, request).value
+        status(result) mustBe Status.CREATED
         contentAsJson(result) mustBe Json.toJson(expected)
       }
+
     }
 
     "must return Bad Request for an invalid request" in {
@@ -130,6 +138,28 @@ class ClientsControllerSpec extends AnyFreeSpec with Matchers with OptionValues 
 }
 
 object ClientsControllerSpec {
+
+  implicit val materializer: Materializer = Materializer(ActorSystem())
+
+  case class Fixture(
+                      application: PlayApplication,
+                      idmsService: IdentityService
+                    )
+
+  def buildFixture(): Fixture = {
+    val applicationsService = mock[IdentityService]
+
+    val application = new GuiceApplicationBuilder()
+      .overrides(
+        bind[ControllerComponents].toInstance(Helpers.stubControllerComponents()),
+        bind[IdentityService].toInstance(applicationsService)
+      )
+      .build()
+
+    Fixture(application, applicationsService)
+  }
+
+
 
   def buildApplication(): Application = {
     new GuiceApplicationBuilder()
