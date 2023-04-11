@@ -18,11 +18,11 @@ package uk.gov.hmrc.identitymanagementservicestubs.repositories
 
 import com.google.inject.{Inject, Singleton}
 import org.bson.types.ObjectId
-import org.mongodb.scala.model.{Filters, IndexModel}
+import org.mongodb.scala.model.{IndexModel, Indexes}
 import play.api.Logging
 import play.api.libs.json.{Format, JsPath, Reads, Writes}
 import uk.gov.hmrc.identitymanagementservicestubs.models.Identity
-import uk.gov.hmrc.identitymanagementservicestubs.repositories.IdentityRepository.{mongoIdentityFormat, stringToObjectId}
+import uk.gov.hmrc.identitymanagementservicestubs.repositories.IdentityRepository.mongoIdentityFormat
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
@@ -36,7 +36,7 @@ class IdentityRepository @Inject()
     collectionName = "identities",
     mongoComponent = mongoComponent,
     domainFormat = mongoIdentityFormat,
-    indexes = Seq.empty[IndexModel]
+    indexes = Seq(IndexModel(Indexes.ascending("clientSecret")))
   ){
 
   def insert(identity: Identity): Future[Identity] = {
