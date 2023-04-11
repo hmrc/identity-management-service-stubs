@@ -19,7 +19,7 @@ package uk.gov.hmrc.identitymanagementservicestubs.controllers
 import com.google.inject.Singleton
 import play.api.Logging
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
-import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.identitymanagementservicestubs.models.{Client, Identity}
 import uk.gov.hmrc.identitymanagementservicestubs.services.IdentityService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
@@ -30,7 +30,6 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class ClientsController @Inject()(cc: ControllerComponents, idmsService: IdentityService)(implicit ec: ExecutionContext)
   extends BackendController(cc) with Logging {
-
 
   def createClient(): Action[JsValue] = Action(parse.json).async {
     implicit request =>
