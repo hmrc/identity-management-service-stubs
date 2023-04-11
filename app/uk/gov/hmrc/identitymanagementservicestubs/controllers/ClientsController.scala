@@ -64,9 +64,3 @@ class ClientsController @Inject()(cc: ControllerComponents, idmsService: Identit
 
 }
 
-object ClientsController {
-
-  val CLIENT_ID: String = "CLIENTID123"
-  val SECRET: String = "SECRET123"
-
-}
