@@ -33,7 +33,7 @@ import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.identitymanagementservicestubs.controllers.ClientsControllerSpec.{buildApplication, buildFixture}
 import uk.gov.hmrc.identitymanagementservicestubs.models.{Client, ClientResponse, Identity}
 import org.mockito.MockitoSugar.mock
-import org.mockito.{ArgumentMatchers, MockitoSugar}
+import org.mockito.MockitoSugar
 import play.api.{Application => PlayApplication}
 import uk.gov.hmrc.identitymanagementservicestubs.services.IdentityService
 
