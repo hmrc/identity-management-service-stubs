@@ -36,7 +36,7 @@ class IdentityRepository @Inject()
     collectionName = "identities",
     mongoComponent = mongoComponent,
     domainFormat = mongoIdentityFormat,
-    indexes = Seq(IndexModel(Indexes.ascending("clientSecret")))
+    indexes = Seq()
   ){
 
   def insert(identity: Identity): Future[Identity] = {
