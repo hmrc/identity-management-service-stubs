@@ -1,6 +1,6 @@
 # microservice specific routes
 
-POST        /clients                                    uk.gov.hmrc.identitymanagementservicestubs.controllers.ClientsController.createClient()
-DELETE      /clients/:id                                uk.gov.hmrc.identitymanagementservicestubs.controllers.ClientsController.deleteClient(id: String)
-PUT         /clients/:id/client-scopes/:clientScopeId   uk.gov.hmrc.identitymanagementservicestubs.controllers.ClientsController.addClientScope(id: String, clientScopeId: String)
-DELETE      /clients/:id/client-scopes/:clientScopeId   uk.gov.hmrc.identitymanagementservicestubs.controllers.ClientsController.deleteClientScope(id: String, clientScopeId: String)
+POST        /identity/clients                                    uk.gov.hmrc.identitymanagementservicestubs.controllers.ClientsController.createClient()
+DELETE      /identity/clients/:id                                uk.gov.hmrc.identitymanagementservicestubs.controllers.ClientsController.deleteClient(id: String)
+PUT         /identity/clients/:id/client-scopes/:clientScopeId   uk.gov.hmrc.identitymanagementservicestubs.controllers.ClientsController.addClientScope(id: String, clientScopeId: String)
+DELETE      /identity/clients/:id/client-scopes/:clientScopeId   uk.gov.hmrc.identitymanagementservicestubs.controllers.ClientsController.deleteClientScope(id: String, clientScopeId: String)
