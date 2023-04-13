@@ -2,6 +2,6 @@
 
 POST        /identity/clients                                    uk.gov.hmrc.identitymanagementservicestubs.controllers.ClientsController.createClient()
 DELETE      /identity/clients/:id                                uk.gov.hmrc.identitymanagementservicestubs.controllers.ClientsController.deleteClient(id: String)
-GET         /identity/clients/:id                                uk.gov.hmrc.identitymanagementservicestubs.controllers.ClientsController.getClientSecret(id: String)
+GET         /identity/clients/:id/client-secret                  uk.gov.hmrc.identitymanagementservicestubs.controllers.ClientsController.getClientSecret(id: String)
 PUT         /identity/clients/:id/client-scopes/:clientScopeId   uk.gov.hmrc.identitymanagementservicestubs.controllers.ClientsController.addClientScope(id: String, clientScopeId: String)
 DELETE      /identity/clients/:id/client-scopes/:clientScopeId   uk.gov.hmrc.identitymanagementservicestubs.controllers.ClientsController.deleteClientScope(id: String, clientScopeId: String)
