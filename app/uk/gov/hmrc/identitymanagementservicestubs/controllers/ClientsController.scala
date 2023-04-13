@@ -20,26 +20,30 @@ import com.google.inject.Singleton
 import play.api.Logging
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.hmrc.identitymanagementservicestubs.controllers.ClientsController.{CLIENT_ID, SECRET}
-import uk.gov.hmrc.identitymanagementservicestubs.models.{Client, ClientResponse}
+import uk.gov.hmrc.identitymanagementservicestubs.models.{Client, Identity}
+import uk.gov.hmrc.identitymanagementservicestubs.services.IdentityService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ClientsController @Inject()(cc: ControllerComponents)
+class ClientsController @Inject()(cc: ControllerComponents, idmsService: IdentityService)(implicit ec: ExecutionContext)
   extends BackendController(cc) with Logging {
 
-  def createClient(): Action[JsValue] = Action(parse.json) {
+  def createClient(): Action[JsValue] = Action(parse.json).async {
     implicit request =>
       request.body.validate[Client] match {
         case JsSuccess(client, _) =>
-          val clientResponse = ClientResponse(CLIENT_ID, SECRET)
-          logger.info(s"Creating client $client returning $clientResponse")
-          Ok(Json.toJson(clientResponse))
+          idmsService.createIdentity(Identity(client)).map(_ match{
+            case Some(clientResonse) => Created(Json.toJson(clientResonse))
+            case None =>
+              logger.info(s"Error creating new Identity object for application: ${client.applicationName}")
+              InternalServerError
+          })
         case e: JsError =>
-          logger.warn(s"Error parsing request body: ${JsError.toJson(e)}")
-          BadRequest
+          logger.info(s"Error parsing request body: ${JsError.toJson(e)}")
+          Future.successful(BadRequest)
       }
   }
 
@@ -60,9 +64,3 @@ class ClientsController @Inject()(cc: ControllerComponents)
 
 }
 
-object ClientsController {
-
-  val CLIENT_ID: String = "CLIENTID123"
-  val SECRET: String = "SECRET123"
-
-}
