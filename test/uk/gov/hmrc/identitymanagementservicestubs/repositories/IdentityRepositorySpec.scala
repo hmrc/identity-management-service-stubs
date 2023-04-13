@@ -41,6 +41,5 @@ class IdentityRepositorySpec extends AsyncFreeSpec with Matchers with MockitoSug
       val expected = Identity("test-app-name", "This is a test application", Some("63bebf8bbbeccc26c12294e5"), "client-secret-bla-bla")
       result.get mustBe expected
     }
-
   }
 }

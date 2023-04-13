@@ -28,10 +28,10 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{ControllerComponents, Request}
-import play.api.test.Helpers._
+import play.api.test.Helpers.{status, _}
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.identitymanagementservicestubs.controllers.ClientsControllerSpec.{buildApplication, buildFixture}
-import uk.gov.hmrc.identitymanagementservicestubs.models.{Client, ClientResponse, Identity}
+import uk.gov.hmrc.identitymanagementservicestubs.models.{Client, ClientResponse, Identity, Secret}
 import org.mockito.MockitoSugar.mock
 import org.mockito.MockitoSugar
 import play.api.{Application => PlayApplication}
@@ -40,6 +40,34 @@ import uk.gov.hmrc.identitymanagementservicestubs.services.IdentityService
 import scala.concurrent.Future
 
 class ClientsControllerSpec extends AnyFreeSpec with Matchers with MockitoSugar with OptionValues {
+
+  "retrieve Client secret" - {
+    "must return 200 and secret json for a valid request" in {
+      val fixture = buildFixture()
+      running(fixture.application) {
+        val clientId = "CLIENTID123"
+        val expected = Secret("client-secret-123456-123456")
+
+        val request = FakeRequest(GET, routes.ClientsController.getClientSecret(clientId).url)
+        when(fixture.idmsService.getSecret(clientId)).thenReturn(Future.successful(Some(expected)))
+        val result = route(fixture.application, request).value
+        status(result) mustBe Status.OK
+        contentAsJson(result) mustBe Json.toJson(expected)
+      }
+    }
+
+    "must return Not Found when non existing clientId is specified" in {
+      val fixture = buildFixture()
+      running(fixture.application) {
+        val clientId = "CLIENTID123"
+        val request = FakeRequest(GET, routes.ClientsController.getClientSecret(clientId).url)
+        when(fixture.idmsService.getSecret(clientId)).thenReturn(Future.successful(None))
+        val result = route(fixture.application, request).value
+        status(result) mustBe Status.NOT_FOUND
+      }
+    }
+
+  }
 
   "createClient" - {
     "must return Created and a ClientResponse for a valid request" in {
@@ -67,7 +95,7 @@ class ClientsControllerSpec extends AnyFreeSpec with Matchers with MockitoSugar 
 
     }
 
-    "must return Bad Request for an invalid request" in {
+    "must return Bad Request for an invalid request for creating a new client identity" in {
       val application = buildApplication()
 
       running(application) {
@@ -86,6 +114,8 @@ class ClientsControllerSpec extends AnyFreeSpec with Matchers with MockitoSugar 
     }
 
   }
+
+
 
   "deleteClient" - {
     "must return Ok" in {
