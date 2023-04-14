@@ -18,11 +18,11 @@ package uk.gov.hmrc.identitymanagementservicestubs.repositories
 
 import com.google.inject.{Inject, Singleton}
 import org.bson.types.ObjectId
-import org.mongodb.scala.model.{IndexModel, Indexes}
+import org.mongodb.scala.model.Filters
 import play.api.Logging
 import play.api.libs.json.{Format, JsPath, Reads, Writes}
 import uk.gov.hmrc.identitymanagementservicestubs.models.Identity
-import uk.gov.hmrc.identitymanagementservicestubs.repositories.IdentityRepository.mongoIdentityFormat
+import uk.gov.hmrc.identitymanagementservicestubs.repositories.IdentityRepository.{mongoIdentityFormat, stringToObjectId}
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
@@ -50,6 +50,15 @@ class IdentityRepository @Inject()
           clientId = Some(result.getInsertedId.asObjectId().getValue.toString)
         )
       )
+  }
+  def getSecret(id: String): Future[Option[Identity]] = {
+    stringToObjectId(id) match {
+      case Some(objectId) =>
+        collection
+          .find(Filters.equal("_id", objectId))
+          .headOption()
+      case None => Future.successful(None)
+    }
   }
 }
 

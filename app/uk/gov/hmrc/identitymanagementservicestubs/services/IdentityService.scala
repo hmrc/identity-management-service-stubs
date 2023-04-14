@@ -18,7 +18,7 @@ package uk.gov.hmrc.identitymanagementservicestubs.services
 
 import com.google.inject.{Inject, Singleton}
 import play.api.Logging
-import uk.gov.hmrc.identitymanagementservicestubs.models.{ClientResponse, Identity}
+import uk.gov.hmrc.identitymanagementservicestubs.models.{ClientResponse, Identity, Secret}
 import uk.gov.hmrc.identitymanagementservicestubs.repositories.IdentityRepository
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -28,6 +28,12 @@ import scala.concurrent.{ExecutionContext, Future}
 class IdentityService @Inject()(repository: IdentityRepository)(implicit ec: ExecutionContext)
 extends Logging   {
 
-  def createIdentity(identity: Identity): Future[Option[ClientResponse]] = repository.insert(identity).map(_.toClientResponse)
+  def createIdentity(identity: Identity): Future[Option[ClientResponse]] = repository.insert(identity).map(
+                                                                                                    _.toClientResponse
+                                                                                                )
+
+  def getSecret(clientId: String): Future[Option[Secret]] = repository.getSecret(clientId).map(
+                                                                                  _.map(id => Secret(id.clientSecret))
+                                                                                  )
 
 }

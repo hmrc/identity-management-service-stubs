@@ -21,7 +21,7 @@ import org.mockito.MockitoSugar
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AsyncFreeSpec
 import org.scalatest.matchers.must.Matchers
-import uk.gov.hmrc.identitymanagementservicestubs.models.{ClientResponse, Identity}
+import uk.gov.hmrc.identitymanagementservicestubs.models.{ClientResponse, Identity, Secret}
 import uk.gov.hmrc.identitymanagementservicestubs.repositories.IdentityRepository
 
 import scala.concurrent.Future
@@ -40,4 +40,24 @@ class IdentityServiceSpec extends AsyncFreeSpec with Matchers with MockitoSugar 
                actual mustBe Some(expected)
        }
   }
-}}
+}
+
+  "getClientSecret" - {
+       "must build the correct Secret object from Identity object returned by repository" in {
+
+           val repository = mock[IdentityRepository]
+           val service = new IdentityService(repository)
+           val clientId = "63bebf8bbbeccc26c12294e5"
+           val identity = Identity("test-app-name", "This is a test application", Some(clientId), "client-secret-123456-123456")
+           val expected = Secret("client-secret-123456-123456")
+           when(repository.getSecret(clientId)).thenReturn(Future.successful(Some(identity)))
+           service.getSecret(clientId).map {
+             actual =>
+               actual mustBe Some(expected)
+       }
+  }
+}
+
+
+
+}
