@@ -55,6 +55,14 @@ class ClientsController @Inject()(cc: ControllerComponents, idmsService: Identit
     })
   }
 
+  def newClientSecret(id: String): Action[AnyContent] = Action.async {
+    logger.info(s"Creating new client secret for client id = $id")
+    idmsService.newSecret(id).map(_ match {
+      case Some(secret) => Ok(Json.toJson(secret))
+      case None => NotFound
+    })
+  }
+
   def deleteClient(id: String): Action[AnyContent] = Action {
     logger.info(s"Deleting client $id")
     Ok

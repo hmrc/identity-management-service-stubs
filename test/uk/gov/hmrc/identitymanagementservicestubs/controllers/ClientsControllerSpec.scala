@@ -165,6 +165,22 @@ class ClientsControllerSpec extends AnyFreeSpec with Matchers with MockitoSugar 
     }
   }
 
+  "create new Client secret" - {
+    "must return 200 and secret json for a valid request" in {
+      val fixture = buildFixture()
+      running(fixture.application) {
+        val clientId = "CLIENTID123"
+        val expected = Secret("client-secret-123456-123456")
+
+        val request = FakeRequest(POST, routes.ClientsController.newClientSecret(clientId).url)
+        when(fixture.idmsService.newSecret(clientId)).thenReturn(Future.successful(Some(expected)))
+        val result = route(fixture.application, request).value
+        status(result) mustBe Status.OK
+        contentAsJson(result) mustBe Json.toJson(expected)
+      }
+    }
+  }
+
 }
 
 object ClientsControllerSpec {
