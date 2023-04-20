@@ -31,7 +31,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{ControllerComponents, Request}
 import play.api.test.Helpers.{status, _}
 import play.api.test.{FakeRequest, Helpers}
-import play.api.{Application, Application => PlayApplication}
+import play.api.{Application => PlayApplication}
 import uk.gov.hmrc.identitymanagementservicestubs.controllers.ClientsControllerSpec.{buildApplication, buildFixture}
 import uk.gov.hmrc.identitymanagementservicestubs.models.{Client, ClientResponse, Identity, Secret}
 import uk.gov.hmrc.identitymanagementservicestubs.services.IdentityService
@@ -206,7 +206,7 @@ object ClientsControllerSpec {
 
 
 
-  def buildApplication(): Application = {
+  def buildApplication(): PlayApplication = {
     new GuiceApplicationBuilder()
       .overrides(
         bind[ControllerComponents].toInstance(Helpers.stubControllerComponents()),
