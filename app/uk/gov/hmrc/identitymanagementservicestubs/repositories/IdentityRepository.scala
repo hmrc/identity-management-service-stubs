@@ -37,7 +37,7 @@ class IdentityRepository @Inject()
     mongoComponent = mongoComponent,
     domainFormat = mongoIdentityFormat,
     indexes = Seq()
-  ){
+  ) {
 
   def insert(identity: Identity): Future[Identity] = {
     collection
@@ -51,6 +51,7 @@ class IdentityRepository @Inject()
         )
       )
   }
+
   def getSecret(id: String): Future[Option[Identity]] = {
     stringToObjectId(id) match {
       case Some(objectId) =>
@@ -60,43 +61,55 @@ class IdentityRepository @Inject()
       case None => Future.successful(None)
     }
   }
-}
 
-
-object IdentityRepository  extends Logging {
-
-  private val mongoIdentityWithIdWrites: Writes[Identity] =
-    Identity.formatIdentity.transform(
-      json => json.transform(
-        JsPath.json.update((JsPath \ "_id" \ "$oid").json.copyFrom((JsPath \ "clientId").json.pick))
-          andThen (JsPath \ "clientId").json.prune
-      ).get
-    )
-
-  private val mongoIdentityWrites: Writes[Identity] = (identity: Identity) => {
+  def update(identity: Identity): Future[Option[Identity]] = {
     identity.clientId match {
-      case Some(_) => mongoIdentityWithIdWrites.writes(identity)
-      case _ => Identity.formatIdentity.writes(identity)
-    }
-  }
+      case Some(objectId) =>
 
-  private val mongoIdentityReads: Reads[Identity] =
-    JsPath.json.update((JsPath \ "clientId").json
-      .copyFrom((JsPath \ "_id" \ "$oid").json.pick))
-      .andThen(Identity.formatIdentity)
+        collection.replaceOne(Filters.equal("_id", objectId), identity)
+          .toFuture()
+          .map(_ => Some(identity))
 
-
-  val mongoIdentityFormat: Format[Identity] = Format(mongoIdentityReads, mongoIdentityWrites)
-
-  def stringToObjectId(id: String): Option[ObjectId] = {
-    try {
-      Some(new ObjectId(id))
-    }
-    catch {
-      case _: IllegalArgumentException =>
-        logger.debug(s"Invalid ObjectId specified: $id")
-        None
+      case None => Future.successful(None)
     }
   }
 }
+
+
+  object IdentityRepository extends Logging {
+
+    private val mongoIdentityWithIdWrites: Writes[Identity] =
+      Identity.formatIdentity.transform(
+        json => json.transform(
+          JsPath.json.update((JsPath \ "_id" \ "$oid").json.copyFrom((JsPath \ "clientId").json.pick))
+            andThen (JsPath \ "clientId").json.prune
+        ).get
+      )
+
+    private val mongoIdentityWrites: Writes[Identity] = (identity: Identity) => {
+      identity.clientId match {
+        case Some(_) => mongoIdentityWithIdWrites.writes(identity)
+        case _ => Identity.formatIdentity.writes(identity)
+      }
+    }
+
+    private val mongoIdentityReads: Reads[Identity] =
+      JsPath.json.update((JsPath \ "clientId").json
+        .copyFrom((JsPath \ "_id" \ "$oid").json.pick))
+        .andThen(Identity.formatIdentity)
+
+
+    val mongoIdentityFormat: Format[Identity] = Format(mongoIdentityReads, mongoIdentityWrites)
+
+    def stringToObjectId(id: String): Option[ObjectId] = {
+      try {
+        Some(new ObjectId(id))
+      }
+      catch {
+        case _: IllegalArgumentException =>
+          logger.debug(s"Invalid ObjectId specified: $id")
+          None
+      }
+    }
+  }
 

@@ -36,4 +36,8 @@ extends Logging   {
                                                                                   _.map(id => Secret(id.clientSecret))
                                                                                   )
 
+  def newSecret(clientId: String): Future[Option[Secret]] = repository.getSecret(clientId).flatMap {
+    case Some(identity: Identity) => repository.update(identity.copy(clientSecret = Identity.generateSecret())).map(_.map(id => Secret(id.clientSecret)))
+    case None => Future.successful(None)
+  }
 }
