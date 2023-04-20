@@ -18,10 +18,7 @@ package uk.gov.hmrc.identitymanagementservicestubs.repositories
 
 import com.google.inject.{Inject, Singleton}
 import org.bson.types.ObjectId
-import org.mongodb.scala.Document
-import org.mongodb.scala.bson.BsonDocument
 import org.mongodb.scala.model.Filters
-import org.mongodb.scala.model.Updates.set
 import play.api.Logging
 import play.api.libs.json.{Format, JsPath, Reads, Writes}
 import uk.gov.hmrc.identitymanagementservicestubs.models.Identity

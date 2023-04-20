@@ -19,10 +19,11 @@ package uk.gov.hmrc.identitymanagementservicestubs.controllers
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import org.mockito.ArgumentMatchers.any
+import org.mockito.MockitoSugar
+import org.mockito.MockitoSugar.mock
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import play.api.Application
 import play.api.http.Status
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -30,11 +31,9 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{ControllerComponents, Request}
 import play.api.test.Helpers.{status, _}
 import play.api.test.{FakeRequest, Helpers}
+import play.api.{Application, Application => PlayApplication}
 import uk.gov.hmrc.identitymanagementservicestubs.controllers.ClientsControllerSpec.{buildApplication, buildFixture}
 import uk.gov.hmrc.identitymanagementservicestubs.models.{Client, ClientResponse, Identity, Secret}
-import org.mockito.MockitoSugar.mock
-import org.mockito.MockitoSugar
-import play.api.{Application => PlayApplication}
 import uk.gov.hmrc.identitymanagementservicestubs.services.IdentityService
 
 import scala.concurrent.Future
