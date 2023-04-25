@@ -51,7 +51,7 @@ class IdentityServiceSpec extends AsyncFreeSpec with Matchers with MockitoSugar 
       val clientId = "63bebf8bbbeccc26c12294e5"
       val identity = Identity("test-app-name", "This is a test application", Some(clientId), "client-secret-123456-123456", Set.empty)
       val expected = Secret("client-secret-123456-123456")
-      when(repository.getSecret(clientId)).thenReturn(Future.successful(Some(identity)))
+      when(repository.find(clientId)).thenReturn(Future.successful(Some(identity)))
       service.getSecret(clientId).map {
         actual =>
           actual mustBe Some(expected)
@@ -67,7 +67,7 @@ class IdentityServiceSpec extends AsyncFreeSpec with Matchers with MockitoSugar 
       val clientId = "63bebf8bbbeccc26c12294e5"
       val identity = Identity("test-app-name", "This is a test application", Some(clientId), "client-secret-123456-123456", Set.empty)
       val oldSecret = Secret("client-secret-123456-123456")
-      when(repository.getSecret(clientId)).thenReturn(Future.successful(Some(identity)))
+      when(repository.find(clientId)).thenReturn(Future.successful(Some(identity)))
       when(repository.update(any[Identity])).thenAnswer((invocation: InvocationOnMock) => Future.successful(Some(invocation.getArgument(0))))
 
       service.newSecret(clientId).map {

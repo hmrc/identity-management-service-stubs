@@ -28,16 +28,39 @@ import scala.concurrent.{ExecutionContext, Future}
 class IdentityService @Inject()(repository: IdentityRepository)(implicit ec: ExecutionContext)
 extends Logging   {
 
-  def createIdentity(identity: Identity): Future[Option[ClientResponse]] = repository.insert(identity).map(
-                                                                                                    _.toClientResponse
-                                                                                                )
+  def createIdentity(identity: Identity): Future[Option[ClientResponse]] =
+    repository.insert(identity).map(
+      _.toClientResponse
+    )
 
-  def getSecret(clientId: String): Future[Option[Secret]] = repository.getSecret(clientId).map(
-                                                                                  _.map(id => Secret(id.clientSecret))
-                                                                                  )
+  def getSecret(clientId: String): Future[Option[Secret]] =
+    repository.find(clientId).map(
+      _.map(id => Secret(id.clientSecret))
+    )
 
-  def newSecret(clientId: String): Future[Option[Secret]] = repository.getSecret(clientId).flatMap {
-    case Some(identity: Identity) => repository.update(identity.copy(clientSecret = Identity.generateSecret())).map(_.map(id => Secret(id.clientSecret)))
-    case None => Future.successful(None)
+  def newSecret(clientId: String): Future[Option[Secret]] =
+    repository.find(clientId).flatMap {
+      case Some(identity: Identity) =>
+        repository
+          .update(identity.copy(clientSecret = Identity.generateSecret()))
+          .map(_.map(id => Secret(id.clientSecret)))
+      case None =>
+        Future.successful(None)
+    }
+
+  def addClientScope(id: String, clientScopeId: String): Future[Option[Unit]] = {
+    repository.find(id).flatMap {
+      case Some(identity) =>
+        val updated = identity.copy(scopes = identity.scopes + clientScopeId)
+        logger.info(updated.toString)
+        repository
+          .update(updated)
+          .map {
+            case Some(_) => Some(())
+            case _ => None
+          }
+      case _ => Future.successful(None)
+    }
   }
+
 }
