@@ -20,7 +20,7 @@ import com.google.inject.Singleton
 import play.api.Logging
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.hmrc.identitymanagementservicestubs.models.{Client, Identity}
+import uk.gov.hmrc.identitymanagementservicestubs.models.{Client, ClientScope, Identity}
 import uk.gov.hmrc.identitymanagementservicestubs.services.IdentityService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
@@ -79,6 +79,14 @@ class ClientsController @Inject()(cc: ControllerComponents, idmsService: Identit
   def deleteClientScope(id: String, clientScopeId: String): Action[AnyContent] = Action {
     logger.info(s"Deleting client scope $id $clientScopeId")
     Ok
+  }
+
+  def fetchClientScopes(id: String): Action[AnyContent] = Action.async {
+    logger.info(s"Fetching scopes for $id")
+    idmsService.fetchIdentity(id).map {
+      case Some(identity) => Ok(Json.toJson(identity.scopes.map(ClientScope(_))))
+      case _ => NotFound
+    }
   }
 
 }

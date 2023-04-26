@@ -33,7 +33,7 @@ import play.api.test.Helpers.{status, _}
 import play.api.test.{FakeRequest, Helpers}
 import play.api.{Application => PlayApplication}
 import uk.gov.hmrc.identitymanagementservicestubs.controllers.ClientsControllerSpec.{buildApplication, buildFixture}
-import uk.gov.hmrc.identitymanagementservicestubs.models.{Client, ClientResponse, Identity, Secret}
+import uk.gov.hmrc.identitymanagementservicestubs.models.{Client, ClientResponse, ClientScope, Identity, Secret}
 import uk.gov.hmrc.identitymanagementservicestubs.services.IdentityService
 
 import scala.concurrent.Future
@@ -184,6 +184,43 @@ class ClientsControllerSpec extends AnyFreeSpec with Matchers with MockitoSugar 
     }
   }
 
+  "fetchClientScopes" - {
+    "must return 200 and scopes for a valid request" in {
+      val id = "test-id"
+      val identity = Identity("test-application-name", "test-description", Some(id), "test-secret", Set("scope-1", "scope-2"))
+
+      val fixture = buildFixture()
+      running(fixture.application) {
+        when(fixture.idmsService.fetchIdentity(ArgumentMatchers.eq(id)))
+          .thenReturn(Future.successful(Some(identity)))
+
+        val request = FakeRequest(GET, routes.ClientsController.fetchClientScopes(id).url)
+        val result = route(fixture.application, request).value
+
+        val expected = identity.scopes.map(ClientScope(_))
+
+        status(result) mustBe Status.OK
+        contentAsJson(result) mustBe Json.toJson(expected)
+      }
+    }
+
+    "must return 404 Not Found when the client Id is not known" in {
+      val id = "test-id"
+
+      val fixture = buildFixture()
+      running(fixture.application) {
+        when(fixture.idmsService.fetchIdentity(ArgumentMatchers.eq(id)))
+          .thenReturn(Future.successful(None))
+
+        val request = FakeRequest(GET, routes.ClientsController.fetchClientScopes(id).url)
+        val result = route(fixture.application, request).value
+
+        status(result) mustBe Status.NOT_FOUND
+      }
+    }
+
+  }
+
 }
 
 object ClientsControllerSpec {
@@ -207,8 +244,6 @@ object ClientsControllerSpec {
 
     Fixture(application, applicationsService)
   }
-
-
 
   def buildApplication(): PlayApplication = {
     new GuiceApplicationBuilder()
