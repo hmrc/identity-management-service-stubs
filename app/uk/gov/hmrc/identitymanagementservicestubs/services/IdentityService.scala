@@ -34,9 +34,10 @@ extends Logging   {
     )
 
   def getSecret(clientId: String): Future[Option[Secret]] =
-    repository.find(clientId).map(
-      _.map(id => Secret(id.clientSecret))
-    )
+    fetchIdentity(clientId).map {
+      case Some(identity) => Some(Secret(identity.clientSecret))
+      case _ => None
+    }
 
   def newSecret(clientId: String): Future[Option[Secret]] =
     repository.find(clientId).flatMap {
@@ -61,6 +62,10 @@ extends Logging   {
           }
       case _ => Future.successful(None)
     }
+  }
+
+  def fetchIdentity(id: String): Future[Option[Identity]] = {
+    repository.find(id)
   }
 
 }
