@@ -33,7 +33,7 @@ class IdentityServiceSpec extends AsyncFreeSpec with Matchers with MockitoSugar 
 
       val repository = mock[IdentityRepository]
       val service = new IdentityService(repository)
-      val identity = Identity("test-app-name", "This is a test application", Some("63bebf8bbbeccc26c12294e5"), "client-secret-bla-bla")
+      val identity = Identity("test-app-name", "This is a test application", Some("63bebf8bbbeccc26c12294e5"), "client-secret-bla-bla", Set.empty)
       val expected = ClientResponse("63bebf8bbbeccc26c12294e5", "client-secret-bla-bla")
       when(repository.insert(any[Identity])).thenReturn(Future.successful(identity))
       service.createIdentity(identity.copy(clientId = None)).map {
@@ -43,16 +43,15 @@ class IdentityServiceSpec extends AsyncFreeSpec with Matchers with MockitoSugar 
     }
   }
 
-
   "getClientSecret" - {
     "must build the correct Secret object from Identity object returned by repository" in {
 
       val repository = mock[IdentityRepository]
       val service = new IdentityService(repository)
       val clientId = "63bebf8bbbeccc26c12294e5"
-      val identity = Identity("test-app-name", "This is a test application", Some(clientId), "client-secret-123456-123456")
+      val identity = Identity("test-app-name", "This is a test application", Some(clientId), "client-secret-123456-123456", Set.empty)
       val expected = Secret("client-secret-123456-123456")
-      when(repository.getSecret(clientId)).thenReturn(Future.successful(Some(identity)))
+      when(repository.find(clientId)).thenReturn(Future.successful(Some(identity)))
       service.getSecret(clientId).map {
         actual =>
           actual mustBe Some(expected)
@@ -66,9 +65,9 @@ class IdentityServiceSpec extends AsyncFreeSpec with Matchers with MockitoSugar 
       val repository = mock[IdentityRepository]
       val service = new IdentityService(repository)
       val clientId = "63bebf8bbbeccc26c12294e5"
-      val identity = Identity("test-app-name", "This is a test application", Some(clientId), "client-secret-123456-123456")
+      val identity = Identity("test-app-name", "This is a test application", Some(clientId), "client-secret-123456-123456", Set.empty)
       val oldSecret = Secret("client-secret-123456-123456")
-      when(repository.getSecret(clientId)).thenReturn(Future.successful(Some(identity)))
+      when(repository.find(clientId)).thenReturn(Future.successful(Some(identity)))
       when(repository.update(any[Identity])).thenAnswer((invocation: InvocationOnMock) => Future.successful(Some(invocation.getArgument(0))))
 
       service.newSecret(clientId).map {
@@ -78,6 +77,5 @@ class IdentityServiceSpec extends AsyncFreeSpec with Matchers with MockitoSugar 
     }
 
   }
-
 
 }

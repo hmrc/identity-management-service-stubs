@@ -19,7 +19,7 @@ package uk.gov.hmrc.identitymanagementservicestubs.controllers
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import org.mockito.ArgumentMatchers.any
-import org.mockito.MockitoSugar
+import org.mockito.{ArgumentMatchers, MockitoSugar}
 import org.mockito.MockitoSugar.mock
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
@@ -114,8 +114,6 @@ class ClientsControllerSpec extends AnyFreeSpec with Matchers with MockitoSugar 
 
   }
 
-
-
   "deleteClient" - {
     "must return Ok" in {
       val application = buildApplication()
@@ -134,15 +132,21 @@ class ClientsControllerSpec extends AnyFreeSpec with Matchers with MockitoSugar 
 
   "addClientScope" - {
     "must return Ok" in {
-      val application = buildApplication()
+      val id = "test-client-id"
+      val clientScopeId = "test-client-scope-id"
 
-      running(application) {
+      val fixture = buildFixture()
+
+      running(fixture.application) {
+        when(fixture.idmsService.addClientScope(ArgumentMatchers.eq(id), ArgumentMatchers.eq(clientScopeId)))
+          .thenReturn(Future.successful(Some(())))
+
         val request = FakeRequest(
           PUT,
-          routes.ClientsController.addClientScope("test-client-id", "test-client-scope-id").url
+          routes.ClientsController.addClientScope(id, clientScopeId).url
         )
 
-        val result = route(application, request).value
+        val result = route(fixture.application, request).value
         status(result) mustBe Status.OK
       }
     }

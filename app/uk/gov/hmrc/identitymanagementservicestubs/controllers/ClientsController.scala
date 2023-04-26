@@ -35,12 +35,12 @@ class ClientsController @Inject()(cc: ControllerComponents, idmsService: Identit
     implicit request =>
       request.body.validate[Client] match {
         case JsSuccess(client, _) =>
-          idmsService.createIdentity(Identity(client)).map(_ match{
+          idmsService.createIdentity(Identity(client)).map {
             case Some(clientResonse) => Created(Json.toJson(clientResonse))
             case None =>
               logger.info(s"Error creating new Identity object for application: ${client.applicationName}")
               InternalServerError
-          })
+          }
         case e: JsError =>
           logger.info(s"Error parsing request body: ${JsError.toJson(e)}")
           Future.successful(BadRequest)
@@ -49,18 +49,18 @@ class ClientsController @Inject()(cc: ControllerComponents, idmsService: Identit
 
   def getClientSecret(id: String): Action[AnyContent] = Action.async {
     logger.info(s"Getting client id = $id")
-    idmsService.getSecret(id).map(_ match {
+    idmsService.getSecret(id).map {
       case Some(secret) => Ok(Json.toJson(secret))
       case None => NotFound
-    })
+    }
   }
 
   def newClientSecret(id: String): Action[AnyContent] = Action.async {
     logger.info(s"Creating new client secret for client id = $id")
-    idmsService.newSecret(id).map(_ match {
+    idmsService.newSecret(id).map {
       case Some(secret) => Ok(Json.toJson(secret))
       case None => NotFound
-    })
+    }
   }
 
   def deleteClient(id: String): Action[AnyContent] = Action {
@@ -68,9 +68,12 @@ class ClientsController @Inject()(cc: ControllerComponents, idmsService: Identit
     Ok
   }
 
-  def addClientScope(id: String, clientScopeId: String): Action[AnyContent] = Action {
+  def addClientScope(id: String, clientScopeId: String): Action[AnyContent] = Action.async {
     logger.info(s"Adding client scope $id $clientScopeId")
-    Ok
+    idmsService.addClientScope(id, clientScopeId).map {
+      case Some(_) => Ok
+      case _ => NotFound
+    }
   }
 
   def deleteClientScope(id: String, clientScopeId: String): Action[AnyContent] = Action {
@@ -79,4 +82,3 @@ class ClientsController @Inject()(cc: ControllerComponents, idmsService: Identit
   }
 
 }
-

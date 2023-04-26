@@ -17,24 +17,43 @@
 package uk.gov.hmrc.identitymanagementservicestubs.models
 
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{Format, JsPath, Json, Reads, Writes}
+import play.api.libs.functional.syntax._
 
+case class Identity(
+  applicationName: String,
+  description: String,
+  clientId: Option[String],
+  clientSecret: String,
+  scopes: Set[String]
+){
 
-case class Identity(applicationName:String, description:String, clientId:Option[String], clientSecret:String){
   def toClientResponse: Option[ClientResponse] = clientId.map(ClientResponse(_, clientSecret))
+
 }
 
 object Identity {
 
-    def apply(client:Client):Identity = Identity(client.applicationName, client.description, None, generateSecret())
-
-    implicit val formatIdentity: Format[Identity] = Json.format[Identity]
-
-    def generateSecret(): String = {
-        val random = new scala.util.Random
-        f"client-secret-${random.alphanumeric.take(6).mkString}-${random.alphanumeric.take(6).mkString}"
-    }
-
+  def apply(client:Client): Identity = {
+    Identity(client.applicationName, client.description, None, generateSecret(), Set.empty)
   }
 
+  implicit val readsIdentity: Reads[Identity] = (
+    (JsPath \ "applicationName").read[String] and
+      (JsPath \ "description").read[String] and
+      (JsPath \ "clientId").readNullable[String] and
+      (JsPath \ "clientSecret").read[String] and
+      (JsPath \ "scopes").readNullable[Set[String]]
+  )((applicationName, description, clientId, clientSecret, scopes) =>
+    Identity(applicationName, description, clientId, clientSecret, scopes.getOrElse(Set.empty))
+  )
 
+  implicit val writesIdentity: Writes[Identity] = Json.writes[Identity]
+  implicit val formatIdentity: Format[Identity] = Format(readsIdentity, writesIdentity)
+
+  def generateSecret(): String = {
+      val random = new scala.util.Random
+      f"client-secret-${random.alphanumeric.take(6).mkString}-${random.alphanumeric.take(6).mkString}"
+  }
+
+}
