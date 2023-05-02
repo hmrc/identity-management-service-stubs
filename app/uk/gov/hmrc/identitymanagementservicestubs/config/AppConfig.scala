@@ -23,4 +23,8 @@ import play.api.Configuration
 class AppConfig @Inject()(config: Configuration) {
 
   val appName: String = config.get[String]("appName")
+
+  val inboundClientId: String = config.get[String]("credentials.inbound.clientId")
+  val inboundSecret: String = config.get[String]("credentials.inbound.secret")
+
 }
