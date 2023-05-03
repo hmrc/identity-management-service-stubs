@@ -70,6 +70,16 @@ class ClientsControllerSpec extends AnyFreeSpec with Matchers with MockitoSugar 
       }
     }
 
+    "must return 401 Unauthorized if no valid credentials are presented" in {
+      val fixture = buildFixture()
+      running(fixture.application) {
+        val clientId = "CLIENTID123"
+        val request = FakeRequest(GET, routes.ClientsController.getClientSecret(clientId).url)
+
+        val result = route(fixture.application, request).value
+        status(result) mustBe Status.UNAUTHORIZED
+      }
+    }
   }
 
   "createClient" - {
@@ -118,6 +128,18 @@ class ClientsControllerSpec extends AnyFreeSpec with Matchers with MockitoSugar 
       }
     }
 
+    "must return 401 Unauthorized if no valid credentials are presented" in {
+      val fixture = buildFixture()
+      running(fixture.application) {
+        val request = FakeRequest(POST, routes.ClientsController.createClient().url)
+          .withHeaders(
+            CONTENT_TYPE -> "application/json"
+          ).withBody(Json.parse("{}"))
+
+        val result = route(fixture.application, request).value
+        status(result) mustBe Status.UNAUTHORIZED
+      }
+    }
   }
 
   "deleteClient" - {
@@ -133,6 +155,20 @@ class ClientsControllerSpec extends AnyFreeSpec with Matchers with MockitoSugar 
 
         val result = route(application, request).value
         status(result) mustBe Status.OK
+      }
+    }
+
+    "must return 401 Unauthorized if no valid credentials are presented" in {
+      val application = buildApplication()
+
+      running(application) {
+        val request = FakeRequest(
+          DELETE,
+          routes.ClientsController.deleteClient("test-client-id").url
+        )
+
+        val result = route(application, request).value
+        status(result) mustBe Status.UNAUTHORIZED
       }
     }
   }
@@ -158,6 +194,21 @@ class ClientsControllerSpec extends AnyFreeSpec with Matchers with MockitoSugar 
         status(result) mustBe Status.OK
       }
     }
+
+    "must return 401 Unauthorized if no valid credentials are presented" in {
+      val fixture = buildFixture()
+
+      running(fixture.application) {
+
+        val request = FakeRequest(
+          PUT,
+          routes.ClientsController.addClientScope("test-id", "test-client-scope-id").url
+        )
+
+        val result = route(fixture.application, request).value
+        status(result) mustBe Status.UNAUTHORIZED
+      }
+    }
   }
 
   "deleteClientScope" - {
@@ -173,6 +224,20 @@ class ClientsControllerSpec extends AnyFreeSpec with Matchers with MockitoSugar 
 
         val result = route(application, request).value
         status(result) mustBe Status.OK
+      }
+    }
+
+    "must return 401 Unauthorized if no valid credentials are presented" in {
+      val application = buildApplication()
+
+      running(application) {
+        val request = FakeRequest(
+          DELETE,
+          routes.ClientsController.addClientScope("test-client-id", "test-client-scope-id").url
+        )
+
+        val result = route(application, request).value
+        status(result) mustBe Status.UNAUTHORIZED
       }
     }
   }
@@ -191,6 +256,18 @@ class ClientsControllerSpec extends AnyFreeSpec with Matchers with MockitoSugar 
         val result = route(fixture.application, request).value
         status(result) mustBe Status.OK
         contentAsJson(result) mustBe Json.toJson(expected)
+      }
+    }
+
+    "must return 401 Unauthorized if no valid credentials are presented" in {
+      val fixture = buildFixture()
+      running(fixture.application) {
+        val clientId = "CLIENTID123"
+
+        val request = FakeRequest(POST, routes.ClientsController.newClientSecret(clientId).url)
+
+        val result = route(fixture.application, request).value
+        status(result) mustBe Status.UNAUTHORIZED
       }
     }
   }
@@ -234,6 +311,16 @@ class ClientsControllerSpec extends AnyFreeSpec with Matchers with MockitoSugar 
       }
     }
 
+    "must return 401 Unauthorized if no valid credentials are presented" in {
+      val fixture = buildFixture()
+      running(fixture.application) {
+        val request = FakeRequest(GET, routes.ClientsController.fetchClientScopes("test-id").url)
+
+        val result = route(fixture.application, request).value
+
+        status(result) mustBe Status.UNAUTHORIZED
+      }
+    }
   }
 
 }

@@ -18,7 +18,7 @@ package uk.gov.hmrc.identitymanagementservicestubs.controllers.auth
 
 import com.google.inject.Inject
 import play.api.Logging
-import play.api.mvc.{ActionFilter, Request, Result, Results}
+import play.api.mvc._
 import uk.gov.hmrc.identitymanagementservicestubs.config.AppConfig
 
 import java.util.Base64
@@ -26,9 +26,10 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.matching.Regex
 
 class Authenticator @Inject()(
-  override val executionContext: ExecutionContext,
-  appConfig: AppConfig
-) extends ActionFilter[Request] with Logging {
+  appConfig: AppConfig,
+  override val parser: BodyParsers.Default
+)(implicit override val executionContext: ExecutionContext)
+  extends ActionBuilder[Request, AnyContent] with ActionFilter[Request] with Logging {
 
   private val tokenPattern: Regex = "^Basic (.+)$".r
   private val credentialsPattern: Regex = "^(.+):(.+)$".r

@@ -35,7 +35,7 @@ class ClientsController @Inject()(
   authenticator: Authenticator
 )(implicit ec: ExecutionContext) extends BackendController(cc) with Logging {
 
-  def createClient(): Action[JsValue] = authenticator.compose(Action(parse.json)).async {
+  def createClient(): Action[JsValue] = authenticator.async(parse.json) {
     implicit request =>
       request.body.validate[Client] match {
         case JsSuccess(client, _) =>
@@ -51,7 +51,7 @@ class ClientsController @Inject()(
       }
   }
 
-  def getClientSecret(id: String): Action[AnyContent] = authenticator.compose(Action).async {
+  def getClientSecret(id: String): Action[AnyContent] = authenticator.async {
     logger.info(s"Getting client id = $id")
     idmsService.getSecret(id).map {
       case Some(secret) => Ok(Json.toJson(secret))
@@ -59,7 +59,7 @@ class ClientsController @Inject()(
     }
   }
 
-  def newClientSecret(id: String): Action[AnyContent] = authenticator.compose(Action).async {
+  def newClientSecret(id: String): Action[AnyContent] = authenticator.async {
     logger.info(s"Creating new client secret for client id = $id")
     idmsService.newSecret(id).map {
       case Some(secret) => Ok(Json.toJson(secret))
@@ -67,12 +67,12 @@ class ClientsController @Inject()(
     }
   }
 
-  def deleteClient(id: String): Action[AnyContent] = authenticator.compose(Action) {
+  def deleteClient(id: String): Action[AnyContent] = authenticator {
     logger.info(s"Deleting client $id")
     Ok
   }
 
-  def addClientScope(id: String, clientScopeId: String): Action[AnyContent] = authenticator.compose(Action).async {
+  def addClientScope(id: String, clientScopeId: String): Action[AnyContent] = authenticator.async {
     logger.info(s"Adding client scope $id $clientScopeId")
     idmsService.addClientScope(id, clientScopeId).map {
       case Some(_) => Ok
@@ -80,12 +80,12 @@ class ClientsController @Inject()(
     }
   }
 
-  def deleteClientScope(id: String, clientScopeId: String): Action[AnyContent] = authenticator.compose(Action) {
+  def deleteClientScope(id: String, clientScopeId: String): Action[AnyContent] = authenticator {
     logger.info(s"Deleting client scope $id $clientScopeId")
     Ok
   }
 
-  def fetchClientScopes(id: String): Action[AnyContent] = authenticator.compose(Action).async {
+  def fetchClientScopes(id: String): Action[AnyContent] = authenticator.async {
     logger.info(s"Fetching scopes for $id")
     idmsService.fetchIdentity(id).map {
       case Some(identity) => Ok(Json.toJson(identity.scopes.map(ClientScope(_))))
