@@ -67,9 +67,12 @@ class ClientsController @Inject()(
     }
   }
 
-  def deleteClient(id: String): Action[AnyContent] = authenticator {
+  def deleteClient(id: String): Action[AnyContent] = authenticator.async {
     logger.info(s"Deleting client $id")
-    Ok
+    idmsService.deleteIdentity(id).map {
+      case Some(()) => Ok
+      case None => NotFound
+    }
   }
 
   def addClientScope(id: String, clientScopeId: String): Action[AnyContent] = authenticator.async {

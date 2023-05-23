@@ -144,16 +144,20 @@ class ClientsControllerSpec extends AnyFreeSpec with Matchers with MockitoSugar 
 
   "deleteClient" - {
     "must return Ok" in {
-      val application = buildApplication()
+      val fixture = buildFixture()
 
-      running(application) {
+      running(fixture.application) {
+        val clientId = "test-client-id"
+        when(fixture.idmsService.deleteIdentity(ArgumentMatchers.eq(clientId)))
+          .thenReturn(Future.successful(Some(())))
+
         val request = FakeRequest(
           DELETE,
-          routes.ClientsController.deleteClient("test-client-id").url
+          routes.ClientsController.deleteClient(clientId).url
         )
           .withHeaders((AUTHORIZATION, "Basic aWRtcy1zdHViLWNsaWVudC1pZDppZG1zLXN0dWItc2VjcmV0"))
 
-        val result = route(application, request).value
+        val result = route(fixture.application, request).value
         status(result) mustBe Status.OK
       }
     }
@@ -169,6 +173,25 @@ class ClientsControllerSpec extends AnyFreeSpec with Matchers with MockitoSugar 
 
         val result = route(application, request).value
         status(result) mustBe Status.UNAUTHORIZED
+      }
+    }
+
+    "must return 404 Not Found if the client does not exist" in {
+      val fixture = buildFixture()
+
+      running(fixture.application) {
+        val clientId = "test-client-id"
+        when(fixture.idmsService.deleteIdentity(ArgumentMatchers.eq(clientId)))
+          .thenReturn(Future.successful(None))
+
+        val request = FakeRequest(
+          DELETE,
+          routes.ClientsController.deleteClient(clientId).url
+        )
+          .withHeaders((AUTHORIZATION, "Basic aWRtcy1zdHViLWNsaWVudC1pZDppZG1zLXN0dWItc2VjcmV0"))
+
+        val result = route(fixture.application, request).value
+        status(result) mustBe Status.NOT_FOUND
       }
     }
   }

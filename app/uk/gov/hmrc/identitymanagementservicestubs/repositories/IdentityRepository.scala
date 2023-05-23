@@ -76,6 +76,24 @@ class IdentityRepository @Inject()
     }
   }
 
+  def delete(clientId: String): Future[Option[Unit]] = {
+    stringToObjectId(clientId) match {
+      case Some(objectId) =>
+        collection.deleteOne(Filters.equal("_id", objectId))
+          .toFuture()
+          .map(
+            result =>
+              if (result.getDeletedCount != 0) {
+                Some(())
+              }
+              else {
+                None
+              }
+          )
+      case None => Future.successful(None)
+    }
+  }
+
 }
 
 object IdentityRepository extends Logging {
