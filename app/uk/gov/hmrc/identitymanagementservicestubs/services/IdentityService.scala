@@ -33,6 +33,9 @@ extends Logging   {
       _.toClientResponse
     )
 
+  def deleteIdentity(clientId: String): Future[Option[Unit]] =
+    repository.delete(clientId)
+
   def getSecret(clientId: String): Future[Option[Secret]] =
     fetchIdentity(clientId).map {
       case Some(identity) => Some(Secret(identity.clientSecret))
