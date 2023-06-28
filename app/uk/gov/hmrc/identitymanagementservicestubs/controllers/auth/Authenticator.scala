@@ -39,8 +39,15 @@ class Authenticator @Inject()(
       request.headers.get("Authorization")
         .flatMap(extractToken)
         .flatMap(decodeCredentials) match {
-          case Some(Credentials(appConfig.inboundClientId, appConfig.inboundSecret)) => None
-          case _ => Some(Results.Unauthorized)
+          case Some(Credentials(appConfig.inboundClientId, appConfig.inboundSecret)) =>
+            logger.info("Credentials match: true")
+            None
+          case Some(Credentials(_, appConfig.inboundSecret)) =>
+            logger.info("Secret matches: true")
+            Some(Results.Unauthorized)
+          case _ =>
+            logger.info("Secret matches: false")
+            Some(Results.Unauthorized)
         }
     )
   }
