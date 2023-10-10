@@ -18,7 +18,7 @@ package uk.gov.hmrc.identitymanagementservicestubs.repositories
 
 import com.google.inject.{Inject, Singleton}
 import org.bson.types.ObjectId
-import org.mongodb.scala.model.Filters
+import org.mongodb.scala.model.{Filters, Updates}
 import play.api.Logging
 import play.api.libs.json.{Format, JsPath, Reads, Writes}
 import uk.gov.hmrc.identitymanagementservicestubs.models.Identity
@@ -72,6 +72,23 @@ class IdentityRepository @Inject()
               .map(_ => Some(identity))
           case None => Future.successful(None)
         }
+      case None => Future.successful(None)
+    }
+  }
+
+  def addScope(clientId: String, clientScopeId: String): Future[Option[Unit]] = {
+    stringToObjectId(clientId) match {
+      case Some(objectId) =>
+        collection
+          .updateOne(
+            filter = Filters.equal("_id", objectId),
+            update = Updates.addToSet("scopes", clientScopeId)
+          )
+          .toFuture()
+          .map {
+            case result if result.getMatchedCount > 0 => Some(())
+            case _ => None
+          }
       case None => Future.successful(None)
     }
   }
