@@ -17,7 +17,7 @@
 package uk.gov.hmrc.identitymanagementservicestubs.services
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.MockitoSugar
+import org.mockito.{ArgumentMatchers, MockitoSugar}
 import org.mockito.invocation.InvocationOnMock
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AsyncFreeSpec
@@ -28,6 +28,7 @@ import uk.gov.hmrc.identitymanagementservicestubs.repositories.IdentityRepositor
 import scala.concurrent.Future
 
 class IdentityServiceSpec extends AsyncFreeSpec with Matchers with MockitoSugar with ScalaFutures {
+
   "createClient" - {
     "must build the correct Identity and submit it to the repository" in {
 
@@ -76,6 +77,38 @@ class IdentityServiceSpec extends AsyncFreeSpec with Matchers with MockitoSugar 
       }
     }
 
+  }
+
+  "addClientScope" - {
+    "must add the correct scope via the repository" in {
+      val repository = mock[IdentityRepository]
+      val service = new IdentityService(repository)
+      val clientId = "63bebf8bbbeccc26c12294e5"
+      val clientScopeId = "test-client-scope-id"
+
+      when(repository.addScope(ArgumentMatchers.eq(clientId), ArgumentMatchers.eq(clientScopeId)))
+        .thenReturn(Future.successful(Some(())))
+
+      service.addClientScope(clientId, clientScopeId) map {
+        result =>
+          result mustBe Some(())
+      }
+    }
+
+    "must return None when the application does not exist" in {
+      val repository = mock[IdentityRepository]
+      val service = new IdentityService(repository)
+      val clientId = "63bebf8bbbeccc26c12294e5"
+      val clientScopeId = "test-client-scope-id"
+
+      when(repository.addScope(ArgumentMatchers.eq(clientId), ArgumentMatchers.eq(clientScopeId)))
+        .thenReturn(Future.successful(None))
+
+      service.addClientScope(clientId, clientScopeId) map {
+        result =>
+          result mustBe None
+      }
+    }
   }
 
 }

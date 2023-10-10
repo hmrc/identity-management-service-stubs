@@ -53,18 +53,7 @@ extends Logging   {
     }
 
   def addClientScope(id: String, clientScopeId: String): Future[Option[Unit]] = {
-    repository.find(id).flatMap {
-      case Some(identity) =>
-        val updated = identity.copy(scopes = identity.scopes + clientScopeId)
-        logger.info(updated.toString)
-        repository
-          .update(updated)
-          .map {
-            case Some(_) => Some(())
-            case _ => None
-          }
-      case _ => Future.successful(None)
-    }
+    repository.addScope(id, clientScopeId)
   }
 
   def fetchIdentity(id: String): Future[Option[Identity]] = {
