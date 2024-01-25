@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.identitymanagementservicestubs.controllers
 
-import akka.actor.ActorSystem
-import akka.stream.Materializer
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
 import org.mockito.ArgumentMatchers.any
 import org.mockito.{ArgumentMatchers, MockitoSugar}
 import org.mockito.MockitoSugar.mock

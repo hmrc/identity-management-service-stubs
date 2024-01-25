@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.identitymanagementservicestubs.controllers.auth
 
-import akka.stream.testkit.NoMaterializer
+import org.apache.pekko.stream.testkit.NoMaterializer
 import org.scalatest.freespec.AsyncFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.Configuration
