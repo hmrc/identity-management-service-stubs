@@ -93,6 +93,23 @@ class IdentityRepository @Inject()
     }
   }
 
+  def removeScope(clientId: String, clientScopeId: String): Future[Option[Unit]] = {
+    stringToObjectId(clientId) match {
+      case Some(objectId) =>
+        collection
+          .updateOne(
+            filter = Filters.equal("_id", objectId),
+            update = Updates.pull("scopes", clientScopeId)
+          )
+          .toFuture()
+          .map {
+            case result if result.getMatchedCount > 0 => Some(())
+            case _ => None
+          }
+      case None => Future.successful(None)
+    }
+  }
+
   def delete(clientId: String): Future[Option[Unit]] = {
     stringToObjectId(clientId) match {
       case Some(objectId) =>

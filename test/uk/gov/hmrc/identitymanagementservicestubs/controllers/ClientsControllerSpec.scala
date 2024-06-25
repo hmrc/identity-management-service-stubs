@@ -235,18 +235,39 @@ class ClientsControllerSpec extends AnyFreeSpec with Matchers with MockitoSugar 
   }
 
   "deleteClientScope" - {
-    "must return Ok" in {
-      val application = buildApplication()
+    "must delete the scope and return Ok on success" in {
+      val id = "test-client-id"
+      val clientScopeId = "test-client-scope-id"
 
-      running(application) {
-        val request = FakeRequest(
-          DELETE,
-          routes.ClientsController.addClientScope("test-client-id", "test-client-scope-id").url
-        )
+      val fixture = buildFixture()
+
+      running(fixture.application) {
+        when(fixture.idmsService.deleteClientScope(ArgumentMatchers.eq(id), ArgumentMatchers.eq(clientScopeId)))
+          .thenReturn(Future.successful(Some(())))
+
+        val request = FakeRequest(routes.ClientsController.deleteClientScope(id, clientScopeId))
           .withHeaders((AUTHORIZATION, "Basic aWRtcy1zdHViLWNsaWVudC1pZDppZG1zLXN0dWItc2VjcmV0"))
 
-        val result = route(application, request).value
+        val result = route(fixture.application, request).value
         status(result) mustBe Status.OK
+      }
+    }
+
+    "must return 404 Not Found when the client does not exist" in {
+      val id = "test-client-id"
+      val clientScopeId = "test-client-scope-id"
+
+      val fixture = buildFixture()
+
+      running(fixture.application) {
+        when(fixture.idmsService.deleteClientScope(ArgumentMatchers.eq(id), ArgumentMatchers.eq(clientScopeId)))
+          .thenReturn(Future.successful(None))
+
+        val request = FakeRequest(routes.ClientsController.deleteClientScope(id, clientScopeId))
+          .withHeaders((AUTHORIZATION, "Basic aWRtcy1zdHViLWNsaWVudC1pZDppZG1zLXN0dWItc2VjcmV0"))
+
+        val result = route(fixture.application, request).value
+        status(result) mustBe Status.NOT_FOUND
       }
     }
 

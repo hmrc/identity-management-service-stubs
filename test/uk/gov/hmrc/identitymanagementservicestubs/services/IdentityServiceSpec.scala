@@ -111,4 +111,36 @@ class IdentityServiceSpec extends AsyncFreeSpec with Matchers with MockitoSugar 
     }
   }
 
+  "deleteClientScope" - {
+    "must remove the correct scope via the repository" in {
+      val repository = mock[IdentityRepository]
+      val service = new IdentityService(repository)
+      val clientId = "63bebf8bbbeccc26c12294e5"
+      val clientScopeId = "test-client-scope-id"
+
+      when(repository.removeScope(ArgumentMatchers.eq(clientId), ArgumentMatchers.eq(clientScopeId)))
+        .thenReturn(Future.successful(Some(())))
+
+      service.deleteClientScope(clientId, clientScopeId) map {
+        result =>
+          result mustBe Some(())
+      }
+    }
+
+    "must return None when the application does not exist" in {
+      val repository = mock[IdentityRepository]
+      val service = new IdentityService(repository)
+      val clientId = "63bebf8bbbeccc26c12294e5"
+      val clientScopeId = "test-client-scope-id"
+
+      when(repository.removeScope(ArgumentMatchers.eq(clientId), ArgumentMatchers.eq(clientScopeId)))
+        .thenReturn(Future.successful(None))
+
+      service.deleteClientScope(clientId, clientScopeId) map {
+        result =>
+          result mustBe None
+      }
+    }
+  }
+
 }
