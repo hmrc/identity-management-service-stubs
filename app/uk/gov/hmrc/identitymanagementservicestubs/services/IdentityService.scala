@@ -56,6 +56,10 @@ extends Logging   {
     repository.addScope(id, clientScopeId)
   }
 
+  def deleteClientScope(id: String, clientScopeId: String): Future[Option[Unit]] = {
+    repository.removeScope(id, clientScopeId)
+  }
+
   def fetchIdentity(id: String): Future[Option[Identity]] = {
     repository.find(id)
   }
