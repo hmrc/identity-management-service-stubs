@@ -1,7 +1,7 @@
 
 # identity-management-service-stubs
 
-Stub for the Identity Management Service used by The API Hub project.
+Stub for the Identity Management Service used by The Integration Hub project.
 
 For more information on the project please visit this space in Confluence:
 https://confluence.tools.tax.service.gov.uk/display/AH/The+API+Hub+Home
