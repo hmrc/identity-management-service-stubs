@@ -1,7 +1,7 @@
 import uk.gov.hmrc.DefaultBuildSettings
 
 ThisBuild / majorVersion := 0
-ThisBuild / scalaVersion := "2.13.12"
+ThisBuild / scalaVersion := "3.3.3"
 
 lazy val microservice = Project("identity-management-service-stubs", file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
@@ -14,6 +14,7 @@ lazy val microservice = Project("identity-management-service-stubs", file("."))
   )
   .settings(resolvers += Resolver.jcenterRepo)
   .settings(CodeCoverageSettings.settings: _*)
+  .settings(scalacOptions := scalacOptions.value.diff(Seq("-Wunused:all")))
 
 lazy val it = (project in file("it"))
   .enablePlugins(PlayScala)
