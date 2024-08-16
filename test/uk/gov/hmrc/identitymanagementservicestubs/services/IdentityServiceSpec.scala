@@ -17,13 +17,15 @@
 package uk.gov.hmrc.identitymanagementservicestubs.services
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.{ArgumentMatchers, MockitoSugar}
+import org.mockito.ArgumentMatchers
+import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.invocation.InvocationOnMock
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AsyncFreeSpec
 import org.scalatest.matchers.must.Matchers
 import uk.gov.hmrc.identitymanagementservicestubs.models.{ClientResponse, Identity, Secret}
 import uk.gov.hmrc.identitymanagementservicestubs.repositories.IdentityRepository
+import org.mockito.Mockito.{times, verify, when}
 
 import scala.concurrent.Future
 

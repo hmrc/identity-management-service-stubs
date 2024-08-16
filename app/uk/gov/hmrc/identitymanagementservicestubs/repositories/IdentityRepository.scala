@@ -25,6 +25,7 @@ import uk.gov.hmrc.identitymanagementservicestubs.models.Identity
 import uk.gov.hmrc.identitymanagementservicestubs.repositories.IdentityRepository.{mongoIdentityFormat, stringToObjectId}
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
+import org.mongodb.scala.SingleObservableFuture
 
 import scala.concurrent.{ExecutionContext, Future}
 

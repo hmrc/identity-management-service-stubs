@@ -19,8 +19,9 @@ package uk.gov.hmrc.identitymanagementservicestubs.controllers
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.stream.Materializer
 import org.mockito.ArgumentMatchers.any
-import org.mockito.{ArgumentMatchers, MockitoSugar}
-import org.mockito.MockitoSugar.mock
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -379,7 +380,7 @@ object ClientsControllerSpec {
                     )
 
   def buildFixture(): Fixture = {
-    val applicationsService = mock[IdentityService]
+    val applicationsService = MockitoSugar.mock[IdentityService]
 
     val application = new GuiceApplicationBuilder()
       .overrides(

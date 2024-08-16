@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.identitymanagementservicestubs.repositories
 
-import org.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AsyncFreeSpec
 import org.scalatest.matchers.must.Matchers
