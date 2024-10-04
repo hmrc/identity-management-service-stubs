@@ -40,7 +40,7 @@ class IdentityRepositorySpec extends AsyncFreeSpec with Matchers with MockitoSug
            """.stripMargin)
 
       val result = json.validate(mongoIdentityFormat)
-      result mustBe a[JsSuccess[_]]
+      result mustBe a[JsSuccess[?]]
 
       val expected = Identity(
         "test-app-name",
